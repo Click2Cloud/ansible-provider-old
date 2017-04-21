@@ -13,7 +13,7 @@
     db_instance_class: rds.mysql.s1.small
     db_instance_storage: 5
     instance_net_type: Intranet
-    instance_description: akash_created
+    instance_description: test_desc
     security_ip_list: 192.168.0.0
     pay_type: Postpaid
     used_time: 
@@ -23,7 +23,7 @@
  #   vswitch_id: vsw-2zenp6eyukzkuriguwlwn
     private_ip_address:
     allocate_public_ip: true 
-    public_connection_string_prefix: testconnstr
+    public_connection_string_prefix: testconnstring
     public_port: 3306	
     maint_window: 22:00Z-02:00Z
     preferred_backup_time: 22:00Z-23:00Z
@@ -34,11 +34,11 @@
     db_tags:	
       name: akash
 #create database
-    db_name: testdb
+    db_name: testdatabase
     db_description: test
     character_set_name: utf8 
 #create account
-    account_name: testacc
+    account_name: testaccount
     account_password: test@123
     description: 
     account_type: Normal

@@ -1,7 +1,7 @@
-# This Playbook contains test scenario for Create, modify, restart, release RDS instance and create and delete database
+# This Playbook contains test scenario for Create, modify, restart, release RDS instance and changing rds instance type, create and delete database , granting account permission and revoking acccount permission
 # Playbook created by : 
 
-- name: Testing  Create, modify, restart, release RDS instance and create and delete database
+- name: Testing  Create, modify, restart, release RDS instance and changing rds instance type, create and delete database , granting account permission and revoking acccount permission
   hosts: localhost
   connection: local
   vars:
@@ -19,11 +19,11 @@
     used_time: 
     connection_mode: Safe  
     instance_network_type: Classic
-    vpc_id: vpc-2zermg3z16azq6iy4l70h
-    vswitch_id: vsw-2zenp6eyukzkuriguwlwn
+ #   vpc_id: vpc-2zermg3z16azq6iy4l70h
+ #   vswitch_id: vsw-2zenp6eyukzkuriguwlwn
     private_ip_address:
     allocate_public_ip: true 
-    public_connection_string_prefix: tushaeesfd
+    public_connection_string_prefix: testconnstr
     public_port: 3306	
     maint_window: 22:00Z-02:00Z
     preferred_backup_time: 22:00Z-23:00Z
@@ -34,12 +34,12 @@
     db_tags:	
       name: akash
 #create database
-    db_name: akasheesfd
+    db_name: testdb
     db_description: test
     character_set_name: utf8 
 #create account
-    account_name: akasheesfd
-    account_password: akash@123
+    account_name: testacc
+    account_password: test@123
     description: 
     account_type: Normal
     account_privilege: ReadOnly
@@ -161,7 +161,7 @@
         security_ip_list: '{{ security_ip_list }}'
         pay_type: '{{ pay_type }}'      
         #connection_mode: '{{ connection_mode }}'
- #       instance_network_type: Classic
+ #      instance_network_type: Classic
         #vpc_id: '{{ vpc_id }}'
         #vswitch_id: '{{ vswitch_id }}'
         #current_connection_string: '{{ current_connection_string }}'
@@ -175,46 +175,18 @@
     - debug: var=result_modify_rds_instance
 
     - pause:
-        seconds: 10
+        seconds: 40
 
-    #- name: Switcing between primay and standby database instance
-    #  rds:
-    #    region: '{{ region }}'
-    #    command: '{{ command_switching_databases }}'
-    #    instance_id: '{{ instance_id }}'
-    #    node_id: '{{ node_id }}'
-    #    force: '{{ force }}'      
-    #  register: switching_between_databases
-    #- debug: var=switching_between_databases
-
-    - pause:
-        seconds: 30
-
-#    - name: Resetting Instance Password
- #     rds_acc_mgmt:
- #       region: '{{ region }}'
- #       command: reset_password
- #       db_instance_id: '{{ result_create_rds_instance.result[0].DBInstanceId }}'
- #       account_name: '{{ account_name }}'
- #       account_password: '{{ account_password }}'     
- #     register: resetting_instance_password
- #   - debug: var=resetting_instance_password
-
-#    - pause:
- #       seconds: 10
-
-    - name: Resetting Account
+    - name: Resetting Instance Password
       rds_acc_mgmt:
         region: '{{ region }}'
-        command: reset
+        command: reset_password
         db_instance_id: '{{ result_create_rds_instance.result[0].DBInstanceId }}'
         account_name: '{{ account_name }}'
-        account_password: '{{ account_password }}'   
-      register: resetting_account
-    - debug: var=resetting_account
+        account_password: '{{ account_password }}'     
+      register: resetting_instance_password
+    - debug: var=resetting_instance_password
 
-    - pause:
-        seconds: 10
 
     - name: delete account
       rds_acc_mgmt:

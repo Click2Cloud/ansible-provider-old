@@ -23,10 +23,12 @@ ANSIBLE_METADATA = {'status': ['stableinterface'],
 
 DOCUMENTATION = """
 ---
-module: rds_acc_mgmt
-short_description: Create account, delete account, resetting instance password, resetting account, granting account permission and revoking account permission in RDS
+module: rds_account
+short_description: Create account, delete account, reset instance password, reset account, grant account permission
+and revoke account permission in RDS
 description:
-     - Create account, delete account, resetting instance password, resetting account, granting account permission and revoking account permission in RDS
+     - Create account, delete account, reset instance password, reset account, grant account permission and revoke
+     account permission in RDS
 common options:
   acs_access_key:
     description: The access key.
@@ -92,8 +94,8 @@ function: delete an account
         required: True
         aliases: ['name']
 
-function: Granting account permissions
-    description: Granting account permissions
+function: Grant account permissions
+    description: Grant account permissions
     command: grant
     options:
       db_instance_id:
@@ -116,8 +118,8 @@ function: Granting account permissions
         choices: ['ReadOnly', 'ReadWrite']
         required: True
 
-function: Revoking account permissions
-    description: Granting account permissions
+function: Revoke account permissions
+    description: Revoke account permissions
     command: revoke
     options:
       db_instance_id:
@@ -134,7 +136,7 @@ function: Revoking account permissions
           - Name of the database associated with this account
         required: True
 
-function: resetting the instance password
+function: reset the instance password
     description: Resets the account password
     command: reset_password
     options:
@@ -153,7 +155,7 @@ function: resetting the instance password
         aliases: ['password']
         required: True
 
-function: resetting an account
+function: reset an account
     description: Resets an instance's initial account. It is only effective for RDS for
     PostgreSQL and RDS for PPAS instances
     command: reset
@@ -198,7 +200,7 @@ EXAMPLES = """
     account_type: normal
   tasks:
     - name: create account
-      rds_acc_mgmt:
+      rds_account:
         acs_access_key: '{{ acs_access_key }}'
         acs_secret_access_key: '{{ acs_secret_access_key }}'
         region: '{{ region }}'
@@ -212,9 +214,9 @@ EXAMPLES = """
     - debug: var=result
 
 
-# basic provisioning example to resetting an instance password
+# basic provisioning example to reset an instance password
 
-- name: Resetting an instance password
+- name: Reset an instance password
   hosts: localhost
   connection: local
   vars:
@@ -226,8 +228,8 @@ EXAMPLES = """
     account_name: xxxxxxxxxx
     account_password: testuser@123
   tasks:
-    - name: Resetting an instance password
-      rds_acc_mgmt:
+    - name: Reset an instance password
+      rds_account:
         acs_access_key: '{{ acs_access_key }}'
         acs_secret_access_key: '{{ acs_secret_access_key }}'
         region: '{{ region }}'
@@ -239,9 +241,9 @@ EXAMPLES = """
     - debug: var=result
 
 
-# basic provisioning example to resetting an account
+# basic provisioning example to reset an account
 
-- name: Resetting an account
+- name: Reset an account
   hosts: localhost
   connection: local
   vars:
@@ -253,8 +255,8 @@ EXAMPLES = """
     account_name: xxxxxxxxxx
     account_password: testuser@123   
   tasks:
-    - name: Resetting an account
-      rds_acc_mgmt:
+    - name: Reset an account
+      rds_account:
         acs_access_key: '{{ acs_access_key }}'
         acs_secret_access_key: '{{ acs_secret_access_key }}'
         region: '{{ region }}'
@@ -280,7 +282,7 @@ EXAMPLES = """
 
   tasks:
     - name: delete account
-      rds_acc_mgmt:
+      rds_account:
         acs_access_key: '{{ acs_access_key }}'
         acs_secret_access_key: '{{ acs_secret_access_key }}'
         region: '{{ region }}'
@@ -291,9 +293,9 @@ EXAMPLES = """
       register: result
     - debug: var=result
 
-# basic provisioning example to granting account permission
+# basic provisioning example to grant account permission
 
-- name: granting account permission
+- name: grant account permission
   hosts: localhost
   connection: local
   vars:
@@ -307,8 +309,8 @@ EXAMPLES = """
     account_privilege: ReadOnly
 
   tasks:
-    - name: granting account permission
-      rds_acc_mgmt:
+    - name: grant account permission
+      rds_account:
         acs_access_key: '{{ acs_access_key }}'
         acs_secret_access_key: '{{ acs_secret_access_key }}'
         region: '{{ region }}'
@@ -321,9 +323,9 @@ EXAMPLES = """
       register: result
     - debug: var=result
 
-# basic provisioning example to revoking account permission
+# basic provisioning example to revoke account permission
 
-- name: revoking account permission
+- name: revoke account permission
   hosts: localhost
   connection: local
   vars:
@@ -336,8 +338,8 @@ EXAMPLES = """
     account_name:  xxxxxxxxxx
 
   tasks:
-    - name: revoking account permission
-      rds_acc_mgmt:
+    - name: revoke account permission
+      rds_account:
         acs_access_key: '{{ acs_access_key }}'
         acs_secret_access_key: '{{ acs_secret_access_key }}'
         region: '{{ region }}'
@@ -416,11 +418,10 @@ def create_account(module, rds, db_instance_id, account_name, account_password, 
 def delete_account(module, rds, db_instance_id, account_name):
     """
     Delete Account
-
     :param module: Ansible module object
     :param rds: Authenticated rds connection object
-    :param db_instance_id: Id of the instance to delete
-    :param account_name: Name of the database
+    :param db_instance_id: Id of the instance
+    :param account_name: Name of the account to delete
     :return:
         changed: If account is deleted successfully the changed will be set to True else False
         result: detailed server response
@@ -443,9 +444,9 @@ def delete_account(module, rds, db_instance_id, account_name):
     return changed, result
 
 
-def resetting_instance_password(module, rds, db_instance_id, account_name, account_password):
+def reset_instance_password(module, rds, db_instance_id, account_name, account_password):
     """
-    Resetting instance password
+    Reset instance password
     :param module: Ansible module object
     :param rds: Authenticated rds connection object
     :param db_instance_id: Id of instance
@@ -455,11 +456,11 @@ def resetting_instance_password(module, rds, db_instance_id, account_name, accou
     :return: Result dict of operation
     """
     if not db_instance_id:
-        module.fail_json(msg='db_instance_id is required for resetting instance password')
+        module.fail_json(msg='db_instance_id is required to reset instance password')
     if not account_name:
-        module.fail_json(msg='account_name is required for resetting instance password')
+        module.fail_json(msg='account_name is required to reset instance password')
     if not account_password:
-        module.fail_json(msg='account_password is required for resetting instance password')
+        module.fail_json(msg='account_password is required to reset instance password')
 
     spec = ['@', '#', '$', '%', '^', '&', '*', '(', '_', '+', '-', '=', ')', '!']
     intersection_condition = set(spec).intersection(account_password)
@@ -469,14 +470,14 @@ def resetting_instance_password(module, rds, db_instance_id, account_name, accou
         if len(intersection_condition) > 0:
             if re.match('[a-zA-Z0-9]', account_password):
                 try:
-                    changed, result = rds.resetting_instance_password(db_instance_id=db_instance_id,
-                                                                      account_name=account_name,
-                                                                      account_password=account_password)
+                    changed, result = rds.reset_instance_password(db_instance_id=db_instance_id,
+                                                                  account_name=account_name,
+                                                                  account_password=account_password)
                     if 'error' in (''.join(str(result))).lower():
                         module.fail_json(changed=changed, msg=result)
 
                 except RDSResponseError as e:
-                    module.fail_json(msg='Unable to resetting account password, error: {0}'.format(e))
+                    module.fail_json(msg='Unable to reset account password, error: {0}'.format(e))
             else:            
                 module.fail_json(msg='account_password pattern does not match')
         else:
@@ -487,39 +488,39 @@ def resetting_instance_password(module, rds, db_instance_id, account_name, accou
     return changed, result
 
 
-def resetting_account(module, rds, db_instance_id, account_name, account_password):
+def reset_account(module, rds, db_instance_id, account_name, account_password):
     """
-    Resetting Account
+    Reset Account
     :param module: Ansible module object
     :param rds: Authenticated rds connection object
     :param db_instance_id: Id of instance
     :param account_name: Name of an account
-    :param account_password: A new password. It may consist of letters, numbers, or underlines,
+    :param account_password: Account password.
     with a length of 6 to 32 characters
     :return: Result dict of operation
     """
     if not db_instance_id:
-        module.fail_json(msg='db_instance_id is required for resetting account')
+        module.fail_json(msg='db_instance_id is required to reset account')
     if not account_name:
-        module.fail_json(msg='account_name is required for resetting account')
+        module.fail_json(msg='account_name is required to reset account')
     if not account_password:
-        module.fail_json(msg='account_password is required for resetting account')
+        module.fail_json(msg='account_password is required to reset account')
 
     try:
-        changed, result = rds.resetting_account(db_instance_id=db_instance_id, account_name=account_name,
-                                                account_password=account_password)
+        changed, result = rds.reset_account(db_instance_id=db_instance_id, account_name=account_name,
+                                            account_password=account_password)
         if 'error' in (''.join(str(result))).lower():
             module.fail_json(changed=changed, msg=result)
 
     except RDSResponseError as e:
-        module.fail_json(msg='Unable to resetting account, error: {0}'.format(e))
+        module.fail_json(msg='Unable to reset account, error: {0}'.format(e))
           
     return changed, result
 
 
-def granting_account_permission(module, rds, db_instance_id, account_name, db_name, account_privilege):
+def grant_account_permissions(module, rds, db_instance_id, account_name, db_name, account_privilege):
     """
-    Granting Account Permission
+    Grant Account Permissions
 
     :param module: Ansible module object
     :param rds: Authenticated rds connection object
@@ -533,29 +534,30 @@ def granting_account_permission(module, rds, db_instance_id, account_name, db_na
     """
     changed = False
     if not db_instance_id:
-        module.fail_json(msg='db_instance_id is required for granting account permission')
+        module.fail_json(msg='db_instance_id is required for grant account permissions')
     if not account_name:
-        module.fail_json(msg='account_name is required for granting account permission')
+        module.fail_json(msg='account_name is required for grant account permissions')
     if not db_name:
-        module.fail_json(msg='db_name is required for granting account permission')
+        module.fail_json(msg='db_name is required for grant account permissions')
     if not account_privilege:
-        module.fail_json(msg='account_privilege is required for granting account permission')
+        module.fail_json(msg='account_privilege is required for grant account permissions')
     changed = False    
     try:
-        changed, result = rds.granting_account_permission(db_instance_id=db_instance_id, account_name=account_name,
-                                                          db_name=db_name, account_privilege=account_privilege)
+        changed, result = rds.grant_account_permissions(db_instance_id=db_instance_id, account_name=account_name,
+                                                        db_name=db_name, account_privilege=account_privilege)
 
         if 'error' in (''.join(str(result))).lower():
             module.fail_json(changed=changed, msg=result)
 
     except RDSResponseError as e:
-        module.fail_json(msg='Unable to  granting account permission, error: {0}'.format(e))
+        module.fail_json(msg='Unable to  grant account permissions, error: {0}'.format(e))
 
     return changed, result
 
 
-def revoking_account_permission(module, rds, db_instance_id, account_name, db_name):
+def revoke_account_permissions(module, rds, db_instance_id, account_name, db_name):
     """
+    Revoke Account Permissions
 
     :param module: Ansible module object
     :param rds: Authenticated rds connection object
@@ -569,20 +571,20 @@ def revoking_account_permission(module, rds, db_instance_id, account_name, db_na
     changed = False    
     try:
         if not db_instance_id:
-            module.fail_json(msg='db_instance_id is required for revoking account permission')
+            module.fail_json(msg='db_instance_id is required for revoke account permissions')
         if not account_name:
-            module.fail_json(msg='account_name is required for revoking account permission')
+            module.fail_json(msg='account_name is required for revoke account permissions')
         if not db_name:
-            module.fail_json(msg='db_name is required for revoking account permission')
+            module.fail_json(msg='db_name is required for revoke account permissions')
 
-        changed, result = rds.revoking_account_permission(db_instance_id=db_instance_id, account_name=account_name,
-                                                          db_name=db_name)
+        changed, result = rds.revoke_account_permissions(db_instance_id=db_instance_id, account_name=account_name,
+                                                         db_name=db_name)
 
         if 'error' in (''.join(str(result))).lower():
             module.fail_json(changed=changed, msg=result)
 
     except RDSResponseError as e:
-        module.fail_json(msg='Unable to revoke account permission, error: {0}'.format(e))
+        module.fail_json(msg='Unable to revoke account permissions, error: {0}'.format(e))
 
     return changed, result
 
@@ -612,7 +614,7 @@ def main():
     account_privilege = module.params['account_privilege']
     description = module.params['description']
     account_type = module.params['account_type']
-    db_name =  module.params['db_name']
+    db_name = module.params['db_name']
 
     if command == 'create':
 
@@ -626,22 +628,22 @@ def main():
 
     elif command == 'reset_password':
 
-        (changed, result) = resetting_instance_password(module=module, rds=rds, db_instance_id=db_instance_id,
-                                                        account_name=account_name, account_password=account_password)
+        (changed, result) = reset_instance_password(module=module, rds=rds, db_instance_id=db_instance_id,
+                                                    account_name=account_name, account_password=account_password)
         module.exit_json(changed=changed, result=result)
 
     elif command == 'reset':
 
-        (changed, result) = resetting_account(module=module, rds=rds, db_instance_id=db_instance_id,
-                                              account_name=account_name, account_password=account_password)
+        (changed, result) = reset_account(module=module, rds=rds, db_instance_id=db_instance_id,
+                                          account_name=account_name, account_password=account_password)
         module.exit_json(changed=changed, result=result)
 
     elif command == 'grant':
-        (changed, result) = granting_account_permission(module, rds, db_instance_id, account_name, db_name,
-                                                        account_privilege)
+        (changed, result) = grant_account_permissions(module, rds, db_instance_id, account_name, db_name,
+                                                      account_privilege)
         module.exit_json(changed=changed, result=result)    
     elif command == 'revoke':
-        (changed, result) = revoking_account_permission(module, rds, db_instance_id, account_name, db_name)
+        (changed, result) = revoke_account_permissions(module, rds, db_instance_id, account_name, db_name)
         module.exit_json(changed=changed, result=result)  
 
 

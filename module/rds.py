@@ -25,11 +25,11 @@ DOCUMENTATION = """
 ---
 module: rds
 short_description: Create instance, Create database, Create read-only instance, Modify rds instance,
-                   Changing rds instance type, Restart instance, Switching between primary and standby database,
+                   Change rds instance type, Restart instance, Switch between primary and standby database,
                    Delete database and Release Instance in RDS.
 description:
-     - Create instance, Create database, Create read-only instance, Modify rds instance, Changing rds instance type,
-      Restart instance, Switching between primary and standby database, Delete database and Release Instance in RDS.
+     - Create instance, Create database, Create read-only instance, Modify rds instance, Change rds instance type,
+      Restart instance, Switch between primary and standby database, Delete database and Release Instance in RDS.
 common options:
   acs_access_key:
     description:
@@ -160,7 +160,7 @@ function: create rds instances
         - Whether to allocate public IP.
       default: null
       required: false
-    public_connection_string_prefix:
+    connection_string_prefix:
       description:
         - The public connection string.
       default: null
@@ -177,7 +177,7 @@ function: create rds instances
       default: null
     db_description:
       description:
-        - Description of a database to create within the instance.  If not specified then no database is created.
+        - Description of a database to create within the instance. 
       required: false
       default: null
     character_set_name:
@@ -226,8 +226,8 @@ function: create rds instances
       required: false
       default: 300
 
-function: changing rds instance type
-  description: changing rds instance type
+function: change rds instance type
+  description: change rds instance type
   command: modify
   options:
     instance_id:
@@ -438,7 +438,7 @@ function: modify rds instances
       aliases: ['backup_window']
     backup_retention_period:
       description:
-        - "Number of days backups are retained.  Set to 0 to disable backups.  Default is 7 day.  Valid range: 7-730.
+        - "Number of days backups are retained. Default is 7 day.  Valid range: 7-730.
       required: false
       default: null
       aliases: ['backup_retention']
@@ -457,7 +457,7 @@ function: create a database
         required: True
       db_description:
         description:
-          - Description of a database to create within the instance.  If not specified, then no database is created
+          - Description of a database to create within the instance. 
         required: False
       character_set_name:
         description:
@@ -475,11 +475,11 @@ function: delete a database
         required: True
       db_name:
         description:
-          - Name of a database to create within the instance.  If not specified, then no database is created
+          - Name of a database to delete within the instance. If not specified, then no database is deleted
         required: True
 
 
-function: switching between primary and standby database of an rds instance
+function: switch between primary and standby database of an rds instance
     description: user can switch between primary and standby database of rds instance
     command: switch
     options:
@@ -497,7 +497,7 @@ function: switching between primary and standby database of an rds instance
         required: False
 
 
-function: Restarting an rds instance
+function: Restart an rds instance
     description: Generally, an RDS instance can be restarted within 10s. If a large number of transactions must be
     submitted or rolled back, the restart may be extended by about one minute
     command: reboot
@@ -508,7 +508,7 @@ function: Restarting an rds instance
         required: True
 
 
-function: Releasing an rds instance
+function: Release an rds instance
     description: Releases an RDS instance
     command: delete
     options:
@@ -551,12 +551,12 @@ EXAMPLES = """
     vswitch_id: xxxxxxxxxx
     private_ip_address: 192.168.0.25
     allocate_public_ip: yes
-    public_connection_string_prefix: test
+    connection_string_prefix: test
     public_port: 3306
     db_name: testmysql
     db_description: test mysql 
     character_set_name: utf8
-    modifying_db_instance_maint_time: 02:00Z-06:00Z
+    maint_window: 02:00Z-06:00Z
     preferred_backup_time: 02:00Z-03:00Z
     preferred_backup_period: Monday,Tuesday
     backup_retention_period: 7
@@ -586,12 +586,12 @@ EXAMPLES = """
         vswitch_id: '{{ vswitch_id }}'
         private_ip_address: '{{ private_ip_address }}'
         allocate_public_ip: '{{ allocate_public_ip }}'
-        public_connection_string_prefix: '{{ public_connection_string_prefix }}'
+        connection_string_prefix: '{{ connection_string_prefix }}'
         public_port: '{{ public_port }}'
         db_name: '{{ db_name }}'    
         db_description: '{{ db_description }}'
         character_set_name: '{{ character_set_name }}'
-        modifying_db_instance_maint_time: '{{ modifying_db_instance_maint_time }}'
+        maint_window: '{{ maint_window }}'
         preferred_backup_time: '{{ preferred_backup_time }}'
         preferred_backup_period: '{{ preferred_backup_period }}'
         backup_retention_period: '{{ backup_retention_period }}'
@@ -601,9 +601,9 @@ EXAMPLES = """
       register: result
     - debug: var=result
 
-# basic provisioning example to changing rds instance type
+# basic provisioning example to change rds instance type
 
-- name: changing rds instance type
+- name: change rds instance type
   hosts: localhost
   connection: local
   vars:
@@ -616,7 +616,7 @@ EXAMPLES = """
     db_instance_storage: 35 
     pay_type: Postpaid
   tasks:
-    - name: changing rds instance type
+    - name: change rds instance type
       rds:
         acs_access_key: '{{ acs_access_key }}'
         acs_secret_access_key: '{{ acs_secret_access_key }}'
@@ -735,9 +735,9 @@ EXAMPLES = """
       register: result
     - debug: var=result
     
-# basic provisioning example to switching between primary and standby database of an rds
+# basic provisioning example to switch between primary and standby database of an rds
 
-- name: switching between primary and standby database
+- name: switch between primary and standby database
   hosts: localhost
   connection: local
   vars:
@@ -749,7 +749,7 @@ EXAMPLES = """
     node_id: xxxxxxxxxx
     force: 'Yes'
   tasks:
-    - name: switching between primary and standby database
+    - name: switch between primary and standby database
       rds:
         acs_access_key: '{{ acs_access_key }}'
         acs_secret_access_key: '{{ acs_secret_access_key }}'
@@ -761,9 +761,9 @@ EXAMPLES = """
       register: result
     - debug: var=result
     
-# basic provisioning example to restarting rds instance
+# basic provisioning example to restart rds instance
 
-- name: Restarting RDS Instance
+- name: Restart RDS Instance
   hosts: localhost
   connection: local
   vars:
@@ -773,7 +773,7 @@ EXAMPLES = """
     command: reboot
     instance_id: xxxxxxxxxx
   tasks:
-    - name: Restarting RDS Instance
+    - name: Restart RDS Instance
       rds:
         acs_access_key: '{{ acs_access_key }}'
         acs_secret_access_key: '{{ acs_secret_access_key }}'
@@ -783,9 +783,9 @@ EXAMPLES = """
       register: result
     - debug: var=result
     
-# basic provisioning example to releasing rds instance
+# basic provisioning example to release rds instance
 
-- name: Releasing RDS Instance
+- name: Release RDS Instance
   hosts: localhost
   connection: local
   vars:
@@ -795,7 +795,7 @@ EXAMPLES = """
     command: delete
     instance_id: xxxxxxxxxx
   tasks:
-    - name: Releasing RDS Instance
+    - name: Release RDS Instance
       rds:
         acs_access_key: '{{ acs_access_key }}'
         acs_secret_access_key: '{{ acs_secret_access_key }}'
@@ -816,7 +816,7 @@ from footmark.exception import RDSResponseError
 def create_rds_instance(module, rds, zone, db_engine, engine_version, db_instance_class, db_instance_storage,
                         instance_net_type, instance_description, security_ip_list, pay_type, period, used_time,
                         instance_network_type, connection_mode, vpc_id, vswitch_id, private_ip_address,
-                        allocate_public_ip, public_connection_string_prefix, public_port, db_name, db_description,
+                        allocate_public_ip, connection_string_prefix, public_port, db_name, db_description,
                         character_set_name, maint_window, preferred_backup_time,
                         preferred_backup_period, backup_retention_period, db_tags, wait, wait_timeout):
     """
@@ -841,7 +841,7 @@ def create_rds_instance(module, rds, zone, db_engine, engine_version, db_instanc
     :param vswitch_id: ID of VSwitch
     :param private_ip_address: IP address of an VPC under VSwitchId.
     :param allocate_public_ip: Whether to allocate public IP
-    :param public_connection_string_prefix: Prefix of an Internet connection string
+    :param connection_string_prefix: Prefix of an Internet connection string
     :param public_port: The public connection port.
     :param db_name: Name of a database to create within the instance.
     :param db_description: Description of a database to create within the instance.
@@ -880,8 +880,8 @@ def create_rds_instance(module, rds, zone, db_engine, engine_version, db_instanc
             module.fail_json(msg='used_time is required to create rds instance')
 
     if allocate_public_ip:
-        if not public_connection_string_prefix:
-            module.fail_json(msg='public_connection_string_prefix is required set public connection')
+        if not connection_string_prefix:
+            module.fail_json(msg='connection_string_prefix is required set public connection')
         if public_port:
             if str(public_port).isdigit():
                 if int(public_port) < 3200 or int(public_port) > 3999:
@@ -942,17 +942,14 @@ def create_rds_instance(module, rds, zone, db_engine, engine_version, db_instanc
             module.fail_json(msg='preferred_backup_time and  preferred_backup_period are required to create rds'
                                  ' instance backup policy')
 
-
     try:
-        changed, result = rds.create_rds_instance(zone, db_engine, engine_version, db_instance_class,
-                                                  db_instance_storage, instance_net_type, instance_description,
-                                                  security_ip_list, pay_type, period, used_time, instance_network_type,
-                                                  connection_mode, vpc_id, vswitch_id, private_ip_address,
-                                                  allocate_public_ip, public_connection_string_prefix, public_port,
-                                                  db_name, db_description, character_set_name,
-                                                  maint_window, preferred_backup_time,
-                                                  preferred_backup_period, backup_retention_period, db_tags, wait,
-                                                  wait_timeout)
+        changed, result = \
+            rds.create_rds_instance(db_engine, engine_version, db_instance_class, db_instance_storage,
+                                    instance_net_type, security_ip_list, pay_type, period,zone, instance_description,
+                                    used_time, instance_network_type, connection_mode, vpc_id, vswitch_id,
+                                    private_ip_address, allocate_public_ip, connection_string_prefix, public_port,
+                                    db_name, db_description, character_set_name, maint_window, preferred_backup_time,
+                                    preferred_backup_period, backup_retention_period, db_tags, wait, wait_timeout)
 
         if 'error' in (''.join(str(result))).lower():
             module.fail_json(changed=changed, msg=result)
@@ -963,10 +960,10 @@ def create_rds_instance(module, rds, zone, db_engine, engine_version, db_instanc
     return changed, result
 
 
-def changing_rds_instance_type(module, rds, instance_id, db_instance_class, db_instance_storage, pay_type):
+def change_rds_instance_type(module, rds, instance_id, db_instance_class, db_instance_storage, pay_type):
 
     """
-    Changing RDS Instance Type
+    Change RDS Instance Type
 
     :param module:  Ansible module object
     :param rds:  Authenticated rds connection object
@@ -991,8 +988,8 @@ def changing_rds_instance_type(module, rds, instance_id, db_instance_class, db_i
                 db_instance_storage))
 
     try:
-        changed, result = rds.changing_rds_instance_type(instance_id=instance_id, db_instance_class=db_instance_class,
-                                                         db_instance_storage=db_instance_storage, pay_type=pay_type)
+        changed, result = rds.change_rds_instance_type(instance_id=instance_id, db_instance_class=db_instance_class,
+                                                       db_instance_storage=db_instance_storage, pay_type=pay_type)
 
         if 'error' in (''.join(str(result))).lower():
             module.fail_json(changed=changed, msg=result)
@@ -1160,7 +1157,6 @@ def create_rds_read_only_instance(module, rds, source_instance, zone, engine_ver
 def create_database(module, rds, instance_id, db_name, db_description, character_set_name):
     """
     Creates a new database in an instance
-
     :param module: Ansible module object
     :param rds: Authenticated rds connection object
     :param instance_id: Id of instances
@@ -1193,11 +1189,10 @@ def create_database(module, rds, instance_id, db_name, db_description, character
 def delete_database(module, rds, instance_id, db_name):
     """
     Delete database
-
     :param module: Ansible module object
     :param rds: Authenticated rds connection object
     :param instance_id: Id of instances
-    :param db_name: Name of a database to create within the instance.  If not specified, then no database is created
+    :param db_name: Name of a database to delete within the instance. If not specified, then no database is deleted
     :return: Result dict of operation
     """
     changed = False
@@ -1217,45 +1212,43 @@ def delete_database(module, rds, instance_id, db_name):
     return changed, result
 
 
-def restarting_rds_instance(module, rds, instance_id):
+def restart_rds_instance(module, rds, instance_id):
     """
-    Restarting rds instance
-
+    Restart rds instance
     :param module: Ansible module object
     :param rds: Authenticated rds connection object
     :param instance_id: Id of instances to reboot
     :return: Result dict of operation
     """
     if not instance_id:
-        module.fail_json(msg='instance_id is required for restarting rds instance')
+        module.fail_json(msg='instance_id is required to restart rds instance')
 
     changed = False
     try:
-        changed, result = rds.restarting_rds_instance(instance_id=instance_id)
+        changed, result = rds.restart_rds_instance(instance_id=instance_id)
         if 'error' in (''.join(str(result))).lower():
             module.fail_json(changed=changed, msg=result)
 
     except RDSResponseError as e:
-        module.fail_json(msg='Unable to restarting rds instance, error: {0}'.format(e))
+        module.fail_json(msg='Unable to restart rds instance, error: {0}'.format(e))
 
     return changed, result
 
 
-def releasing_rds_instance(module, rds, instance_id):
+def release_rds_instance(module, rds, instance_id):
     """
-    Releasing rds instance
-
+    Release rds instance
     :param module: Ansible module object
     :param rds: Authenticated rds connection object
     :param instance_id: Id of instances to remove
     :return: Result dict of operation
     """
     if not instance_id:
-        module.fail_json(msg='instance_id is required for releasing rds instance')
+        module.fail_json(msg='instance_id is required to release rds instance')
 
     changed = False
     try:
-        changed, result = rds.releasing_rds_instance(instance_id=instance_id)
+        changed, result = rds.release_rds_instance(instance_id=instance_id)
 
         if 'error' in (''.join(str(result))).lower():
             module.fail_json(changed=changed, msg=result)
@@ -1266,10 +1259,9 @@ def releasing_rds_instance(module, rds, instance_id):
     return changed, result
 
 
-def switching_between_primary_standby_database(module, rds, instance_id, node_id, force):
+def switch_between_primary_standby_database(module, rds, instance_id, node_id, force):
     """
-    Switching between primary and standby databases in rds instance
-
+    Switch between primary and standby databases in rds instance
     :param module: Ansible module object
     :param rds: Authenticated rds connection object
     :param instance_id: Id of instances to modify
@@ -1278,16 +1270,16 @@ def switching_between_primary_standby_database(module, rds, instance_id, node_id
     :return: Result dict of operation
     """
     if not instance_id:
-        module.fail_json(msg='instance_id is required for switching between primary '
+        module.fail_json(msg='instance_id is required to switch between primary '
                              'and standby database for rds instance')
     if not node_id:
-        module.fail_json(msg='node_id is required for switching between primary and standby database for rds instance')
+        module.fail_json(msg='node_id is required to switch between primary and standby database for rds instance')
         
     changed = False
     result = []
     try:
-        changed, result = rds.switching_between_primary_standby_database(instance_id=instance_id, node_id=node_id,
-                                                                         force=force)
+        changed, result = rds.switch_between_primary_standby_database(instance_id=instance_id, node_id=node_id,
+                                                                      force=force)
 
         if 'error' in (''.join(str(result))).lower():
             module.fail_json(changed=changed, msg=result)
@@ -1323,8 +1315,7 @@ def main():
         vpc_id=dict(),
         vswitch_id=dict(),
         private_ip_address=dict(),
-        allocate_public_ip=dict(type='bool'),
-        public_connection_string_prefix=dict(),
+        allocate_public_ip=dict(type='bool'),        
         connection_string_prefix=dict(),
         public_port=dict(type='int'),
         port=dict(type='int'),
@@ -1366,8 +1357,7 @@ def main():
     vpc_id = module.params['vpc_id']
     vswitch_id = module.params['vswitch_id']
     private_ip_address = module.params['private_ip_address']
-    allocate_public_ip = module.params['allocate_public_ip']
-    public_connection_string_prefix = module.params['public_connection_string_prefix']
+    allocate_public_ip = module.params['allocate_public_ip']    
     connection_string_prefix = module.params['connection_string_prefix']
     public_port = module.params['public_port']
     port = module.params['port']
@@ -1390,7 +1380,7 @@ def main():
                                                     security_ip_list, pay_type, period, used_time,
                                                     instance_network_type, connection_mode, vpc_id, vswitch_id,
                                                     private_ip_address, allocate_public_ip,
-                                                    public_connection_string_prefix, public_port,
+                                                    connection_string_prefix, public_port,
                                                     db_name, db_description, character_set_name,
                                                     maint_window, preferred_backup_time,
                                                     preferred_backup_period, backup_retention_period,
@@ -1430,16 +1420,16 @@ def main():
 
         elif instance_id is not None and db_instance_storage is not None and pay_type is not None:
 
-            (changed, result) = changing_rds_instance_type(module, rds, instance_id, db_instance_class,
-                                                           db_instance_storage, pay_type)
+            (changed, result) = change_rds_instance_type(module, rds, instance_id, db_instance_class,
+                                                         db_instance_storage, pay_type)
             module.exit_json(changed=changed, result=result)
 
         else:
             module.fail_json(msg=[
                 {'To modify rds instance': 'instance_id, security_ip_list, db_instance_storage and '
                                            'pay_type parameters are required.'},
-                {' To changing rds instance type': 'instance_id, db_instance_storage and'
-                                                   ' pay_type parameter is required.'}
+                {' To change rds instance type': 'instance_id, db_instance_storage and'
+                                                 ' pay_type parameters are required.'}
             ])
 
     elif command == 'delete':
@@ -1450,24 +1440,24 @@ def main():
 
         elif instance_id is not None:
 
-            (changed, result) = releasing_rds_instance(module=module, rds=rds, instance_id=instance_id)
+            (changed, result) = release_rds_instance(module=module, rds=rds, instance_id=instance_id)
             module.exit_json(changed=changed, result=result)
 
         else:
             module.fail_json(msg=[
                     {'To delete database': 'instance_id and db_name parameters are required.'},
-                    {' To releasing rds instance': 'instance_id parameter is required.'}
+                    {' To release rds instance': 'instance_id parameter is required.'}
                     ])
 
     elif command == 'reboot':
 
-        (changed, result) = restarting_rds_instance(module=module, rds=rds, instance_id=instance_id)
+        (changed, result) = restart_rds_instance(module=module, rds=rds, instance_id=instance_id)
         module.exit_json(changed=changed, result=result)
 
     elif command == 'switch':
 
-        (changed, result) = switching_between_primary_standby_database(module=module, rds=rds, instance_id=instance_id,
-                                                                       node_id=node_id, force=force)
+        (changed, result) = switch_between_primary_standby_database(module=module, rds=rds, instance_id=instance_id,
+                                                                    node_id=node_id, force=force)
         module.exit_json(changed=changed, result=result)
 
 

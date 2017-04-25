@@ -1,7 +1,7 @@
-# This Playbook contains test scenario for Create, modify, restart, release RDS instance and changing rds instance type, create and delete database , granting account permission and revoking acccount permission
+# This Playbook contains test scenario for  Create, modify, restart, release RDS instance and change rds instance type, create and delete database , grant account permission and revoke acccount permission
 # Playbook created by : 
 
-- name: Testing  Create, modify, restart, release RDS instance and changing rds instance type, create and delete database , granting account permission and revoking acccount permission
+- name: Testing  Create, modify, restart, release RDS instance and change rds instance type, create and delete database , grant account permission and revoke acccount permission
   hosts: localhost
   connection: local
   vars:
@@ -23,7 +23,7 @@
  #   vswitch_id: vsw-2zenp6eyukzkuriguwlwn
     private_ip_address:
     allocate_public_ip: true 
-    public_connection_string_prefix: testconnstring
+    connection_string_prefix: testconnstring
     public_port: 3306	
     maint_window: 22:00Z-02:00Z
     preferred_backup_time: 22:00Z-23:00Z
@@ -65,7 +65,7 @@
 #        vswitch_id: '{{ vswitch_id }}'
         private_ip_address:
         allocate_public_ip: '{{ allocate_public_ip }}'
-        public_connection_string_prefix: '{{ public_connection_string_prefix }}'
+        connection_string_prefix: '{{ connection_string_prefix }}'
         public_port: '{{ public_port }}'
 #        db_name: '{{ db_name }}'    
  #       db_description: '{{ db_description }}'
@@ -78,11 +78,10 @@
         wait: '{{ wait }}'
         wait_timeout: '{{ wait_timeout }}'
       register: result_create_rds_instance
-    - debug: var=result_create_rds_instance
-    - debug: var=result_create_rds_instance.result[0].DBInstanceId
+    - debug: var=result_create_rds_instance    
 
     - name: create account
-      rds_acc_mgmt:
+      rds_account:
         region: '{{ region }}'
         command: create
         db_instance_id: '{{ result_create_rds_instance.result[0].DBInstanceId }}'
@@ -110,7 +109,7 @@
     - pause:
         seconds: 30
 
-    - name: changing rds instance type
+    - name: change rds instance type
       rds:
         region: '{{ region }}'
         command: modify
@@ -124,8 +123,8 @@
     - pause:
         seconds: 40
 
-    - name: granting account permission
-      rds_acc_mgmt:
+    - name: grant account permission
+      rds_account:
         region: '{{ region }}'
         command: grant
         db_instance_id: '{{ result_create_rds_instance.result[0].DBInstanceId }}'
@@ -138,8 +137,8 @@
     - pause:
         seconds: 20    
 
-    - name: revoking account permission
-      rds_acc_mgmt:
+    - name: revoke account permission
+      rds_account:
         region: '{{ region }}'
         command: revoke
         db_instance_id: '{{ result_create_rds_instance.result[0].DBInstanceId }}'
@@ -177,8 +176,8 @@
     - pause:
         seconds: 40
 
-    - name: Resetting Instance Password
-      rds_acc_mgmt:
+    - name: Reset Instance Password
+      rds_account:
         region: '{{ region }}'
         command: reset_password
         db_instance_id: '{{ result_create_rds_instance.result[0].DBInstanceId }}'
@@ -189,7 +188,7 @@
 
 
     - name: delete account
-      rds_acc_mgmt:
+      rds_account:
         region: '{{ region }}'
         command: delete
         db_instance_id: '{{ result_create_rds_instance.result[0].DBInstanceId }}'

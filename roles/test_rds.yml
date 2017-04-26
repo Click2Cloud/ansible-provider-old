@@ -23,7 +23,7 @@
  #   vswitch_id: vsw-2zenp6eyukzkuriguwlwn
     private_ip_address:
     allocate_public_ip: true 
-    connection_string_prefix: testconnstring
+    connection_string_prefix: democonnstring
     public_port: 3306	
     maint_window: 22:00Z-02:00Z
     preferred_backup_time: 22:00Z-23:00Z
@@ -34,11 +34,11 @@
     db_tags:	
       name: akash
 #create database
-    db_name: testdatabase
+    db_name: demodatabase
     db_description: test
     character_set_name: utf8 
 #create account
-    account_name: testaccount
+    account_name: demoaccount
     account_password: test@123
     description: 
     account_type: Normal
